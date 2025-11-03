@@ -1072,28 +1072,28 @@ pnl_df = pd.DataFrame({
         "Net Profit",
     ],
     f"Monthly ({currency_label})": [
-        f"${rev_m:,.0f}",
-        f"-${clinical_m:,.0f}",
-        f"-${drugs_m:,.0f}",
-        f"-${labs_m:,.0f}",
-        f"${gross_m:,.0f}",
-        f"-${admin_m:,.0f}",
-        f"-${other_m:,.0f}",
-        f"${ebitda_m:,.0f}",
-        f"-${taxes_y/12:,.0f}",
-        f"${net_y/12:,.0f}",
+        f"{currency_symbol}{rev_m:,.0f}",
+        f"-{currency_symbol}{clinical_m:,.0f}",
+        f"-{currency_symbol}{drugs_m:,.0f}",
+        f"-{currency_symbol}{labs_m:,.0f}",
+        f"{currency_symbol}{gross_m:,.0f}",
+        f"-{currency_symbol}{admin_m:,.0f}",
+        f"-{currency_symbol}{other_m:,.0f}",
+        f"{currency_symbol}{ebitda_m:,.0f}",
+        f"-{currency_symbol}{taxes_y/12:,.0f}",
+        f"{currency_symbol}{net_y/12:,.0f}",
     ],
     f"Annual ({currency_label})": [
-        f"${rev_y:,.0f}",
-        f"-${clinical_y:,.0f}",
-        f"-${drugs_y:,.0f}",
-        f"-${labs_y:,.0f}",
-        f"${gross_y:,.0f}",
-        f"-${admin_y:,.0f}",
-        f"-${other_y:,.0f}",
-        f"${ebitda_y:,.0f}",
-        f"-${taxes_y:,.0f}",
-        f"${net_y:,.0f}",
+        f"{currency_symbol}{rev_y:,.0f}",
+        f"-{currency_symbol}{clinical_y:,.0f}",
+        f"-{currency_symbol}{drugs_y:,.0f}",
+        f"-{currency_symbol}{labs_y:,.0f}",
+        f"{currency_symbol}{gross_y:,.0f}",
+        f"-{currency_symbol}{admin_y:,.0f}",
+        f"-{currency_symbol}{other_y:,.0f}",
+        f"{currency_symbol}{ebitda_y:,.0f}",
+        f"-{currency_symbol}{taxes_y:,.0f}",
+        f"{currency_symbol}{net_y:,.0f}",
     ],
     "% of Revenue": [
         "100.0%",
@@ -1527,7 +1527,7 @@ with tab_pl:
         f"{interpret_margin(net_margin, 'Net')}<br><br>"
         f"<b>Profitability cascade:</b> For every dollar of revenue, <b>{gross_margin*100:.1f}%</b> remains after direct costs, "
         f"<b>{ebitda_margin*100:.1f}%</b> after operating expenses, and <b>{net_margin*100:.1f}%</b> flows to bottom line.<br><br>"
-        f"<b>Cost efficiency:</b> The business generates <b>${revenue_per_dollar_cost:.2f}</b> of revenue for every dollar of total costs "
+        f"<b>Cost efficiency:</b> The business generates <b>{currency_symbol}{revenue_per_dollar_cost:.2f}</b> of revenue for every {currency_symbol}1 of total costs "
         f"{'(excellent efficiency)' if revenue_per_dollar_cost >= 1.5 else '(good efficiency)' if revenue_per_dollar_cost >= 1.3 else '(adequate efficiency)' if revenue_per_dollar_cost >= 1.2 else '(low efficiency - requires attention)'}."
     )
     st.markdown(create_insight_box("1", "P&L STRUCTURE ANALYSIS", content_pl), unsafe_allow_html=True)
@@ -1967,7 +1967,7 @@ with tab_sens:
         mode="lines",
         name="Break-even curve",
         line=dict(color=PALETTE["chart"][0], width=4),
-        hovertemplate="<b>Break-even</b><br>Patients: %{x:.0f}<br>Tariff: $%{y:.1f}k<extra></extra>"
+        hovertemplate=f"<b>Break-even</b><br>Patients: %{{x:.0f}}<br>Tariff: {currency_symbol}%{{y:.1f}}k<extra></extra>"
     ))
 
     # punto operativo actual
@@ -2094,7 +2094,7 @@ with tab_sens:
                 len=0.65,
                 thickness=14
             ),
-            hovertemplate="<b>Scenario</b><br>Patients: %{x}<br>Tariff: $%{y}k<br>EBITDA: %{z:,.0f}k<extra></extra>"
+            hovertemplate=f"<b>Scenario</b><br>Patients: %{{x}}<br>Tariff: {currency_symbol}%{{y}}k<br>EBITDA: %{{z:,.0f}}k<extra></extra>"
         )
     )
 
@@ -2111,7 +2111,7 @@ with tab_sens:
         mode="lines",
         name="Break-even line",
         line=dict(color=PALETTE["primary"], width=3),
-        hovertemplate="<b>Break-even</b><br>Patients: %{x:.0f}<br>Tariff: $%{y:.1f}k<extra></extra>"
+        hovertemplate=f"<b>Break-even</b><br>Patients: %{{x:.0f}}<br>Tariff: {currency_symbol}%{{y:.1f}}k<extra></extra>"
     ))
 
     # punto actual
@@ -3053,7 +3053,7 @@ with tab_val:
             ],
             zmid=0,
             showscale=True,
-            hovertemplate="<b>Scenario</b><br>Growth: %{x}<br>Discount: %{y}<br>NPV: $%{z:,.0f}k<extra></extra>",
+            hovertemplate=f"<b>Scenario</b><br>Growth: %{{x}}<br>Discount: %{{y}}<br>NPV: {currency_symbol}%{{z:,.0f}}k<extra></extra>",
             colorbar=dict(title=f"NPV ({currency_label})", len=0.65, thickness=14)
         )
     )
@@ -3129,7 +3129,7 @@ with tab_analysis:
         '<ul>'
         f'<li><b>EBITDA margin:</b> {format_percentage(ebitda_margin)} vs. industry benchmark 25–35%</li>'
         f'<li><b>Safety margin:</b> {format_percentage(mos_pct) if not np.isnan(mos_pct) else "N/A"} cushion above break-even</li>'
-        f'<li><b>Revenue efficiency:</b> ${revenue_per_dollar_cost:.2f} revenue per dollar of cost</li>'
+        f'<li><b>Revenue efficiency:</b> {currency_symbol}{revenue_per_dollar_cost:.2f} revenue per {currency_symbol}1 of cost</li>'
         f'<li><b>ROIC (proxy):</b> {format_percentage(roic_proxy) if initial_investment > 0 else "N/A"} return on invested capital</li>'
         '</ul>'
         f'<b>Competitive assessment:</b> The business demonstrates '
@@ -3764,7 +3764,7 @@ report_html = f"""
                     margin of safety, breaking even at <b>{be_patients_str} patients</b>. 
                     {'Resilience to downside scenarios is adequate for healthcare operations.' if not np.isnan(mos_pct) and mos_pct >= 0.3 else 'Limited buffer requires tight operational discipline and continuous monitoring.'}</p>
                     
-                    <p><b>Strategic implications:</b> Revenue efficiency of <b>${revenue_per_dollar_cost:.2f}</b> per dollar of cost 
+                    <p><b>Strategic implications:</b> Revenue efficiency of <b>{currency_symbol}{revenue_per_dollar_cost:.2f}</b> per {currency_symbol}1 of cost 
                     and an implied <b>{ev_ebitda_str}</b> EV/EBITDA multiple {'aligns with market valuations for specialized outpatient facilities (6–10x benchmark).' if ev_ebitda and 5 <= ev_ebitda <= 12 else 'suggests reassessment of operating model or exit strategy.'}</p>'''
                 )}
             </div>
@@ -3814,7 +3814,7 @@ report_html = f"""
                     <p><b>Profitability cascade:</b> For every dollar of revenue, <b>{gross_margin*100:.1f}%</b> remains 
                     after direct costs, <b>{ebitda_margin*100:.1f}%</b> after operating expenses, and 
                     <b>{net_margin*100:.1f}%</b> flows to bottom line.</p>
-                    <p><b>Cost efficiency:</b> The business generates <b>${revenue_per_dollar_cost:.2f}</b> of revenue 
+                    <p><b>Cost efficiency:</b> The business generates <b>{currency_symbol}{revenue_per_dollar_cost:.2f}</b> of revenue 
                     for every dollar of total costs {'(excellent efficiency)' if revenue_per_dollar_cost >= 1.5 else '(good efficiency)' if revenue_per_dollar_cost >= 1.3 else '(adequate efficiency)' if revenue_per_dollar_cost >= 1.2 else '(low efficiency - requires attention)'}.</p>'''
                 )}
             </div>
@@ -3940,7 +3940,7 @@ report_html = f"""
                     </div>
                     <div class="param-item">
                         <div class="label">Revenue Efficiency</div>
-                        <div class="value">${revenue_per_dollar_cost:.2f}</div>
+                        <div class="value">{currency_symbol}{revenue_per_dollar_cost:.2f}</div>
                         <div style="font-size:0.7rem;color:#64748b;margin-top:0.2rem;">per dollar of cost</div>
                     </div>
                     <div class="param-item">
@@ -3968,7 +3968,7 @@ report_html = f"""
                     <ul>
                         <li>Specialized transplant follow-up creates referral barriers and clinical expertise moats</li>
                         <li>{'Strong' if revenue_per_dollar_cost >= 1.5 else 'Adequate' if revenue_per_dollar_cost >= 1.3 else 'Limited'} 
-                        operational efficiency with ${revenue_per_dollar_cost:.2f} revenue per cost dollar</li>
+                        operational efficiency with {currency_symbol}{revenue_per_dollar_cost:.2f} revenue per cost {currency_symbol}1</li>
                         <li>{'Robust' if not np.isnan(mos_pct) and mos_pct >= 0.4 else 'Moderate' if not np.isnan(mos_pct) and mos_pct >= 0.25 else 'Limited'} 
                         margin of safety provides operational flexibility</li>
                     </ul>
