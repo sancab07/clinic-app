@@ -550,33 +550,41 @@ if logo_b64:
 # MODEL SETUP
 st.sidebar.markdown('<div class="ct-side-title">Model Setup</div>', unsafe_allow_html=True)
 
-# Function to fetch live exchange rates from Frankfurter API
+# Function to fetch live exchange rates from Currency API
 @st.cache_data(ttl=3600)  # Cache for 1 hour
 def get_exchange_rates():
     """
-    Fetch current exchange rates from Frankfurter API (European Central Bank data).
-    Updates daily around 16:00 CET. Falls back to static rates if API fails.
+    Fetch current exchange rates from Currency API (fawazahmed0/currency-api).
+    Free, no API key required, updates daily. Supports 150+ currencies including COP.
+    Falls back to static rates if API fails.
     """
     try:
         # Get rates with USD as base
-        response_usd = requests.get('https://api.frankfurter.dev/v1/latest?base=USD&symbols=COP,EUR', timeout=5)
+        response_usd = requests.get('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json', timeout=5)
         response_usd.raise_for_status()
         data_usd = response_usd.json()
 
         # Get rates with EUR as base
-        response_eur = requests.get('https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD,COP', timeout=5)
+        response_eur = requests.get('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json', timeout=5)
         response_eur.raise_for_status()
         data_eur = response_eur.json()
 
-        # Get rates with COP as base (if available, otherwise calculate)
-        usd_to_cop = data_usd['rates']['COP']
-        usd_to_eur = data_usd['rates']['EUR']
-        eur_to_usd = data_eur['rates']['USD']
-        eur_to_cop = data_eur['rates']['COP']
+        # Get rates with COP as base
+        response_cop = requests.get('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/cop.json', timeout=5)
+        response_cop.raise_for_status()
+        data_cop = response_cop.json()
+
+        # Extract rates
+        usd_to_cop = data_usd['usd']['cop']
+        usd_to_eur = data_usd['usd']['eur']
+        eur_to_usd = data_eur['eur']['usd']
+        eur_to_cop = data_eur['eur']['cop']
+        cop_to_usd = data_cop['cop']['usd']
+        cop_to_eur = data_cop['cop']['eur']
 
         rates = {
             "USD": {"USD": 1.0, "COP": usd_to_cop, "EUR": usd_to_eur},
-            "COP": {"USD": 1/usd_to_cop, "COP": 1.0, "EUR": usd_to_eur/usd_to_cop},
+            "COP": {"USD": cop_to_usd, "COP": 1.0, "EUR": cop_to_eur},
             "EUR": {"USD": eur_to_usd, "COP": eur_to_cop, "EUR": 1.0}
         }
 
@@ -586,9 +594,9 @@ def get_exchange_rates():
         # Fallback to static rates if API fails
         st.warning(f"Using cached exchange rates. Live rates unavailable: {str(e)}")
         fallback_rates = {
-            "USD": {"USD": 1.0, "COP": 3893.0, "EUR": 0.87},
-            "COP": {"USD": 1/3893.0, "COP": 1.0, "EUR": 0.87/3893.0},
-            "EUR": {"USD": 1/0.87, "COP": 3893.0/0.87, "EUR": 1.0}
+            "USD": {"USD": 1.0, "COP": 3855.0, "EUR": 0.868},
+            "COP": {"USD": 1/3855.0, "COP": 1.0, "EUR": 0.868/3855.0},
+            "EUR": {"USD": 1/0.868, "COP": 3855.0/0.868, "EUR": 1.0}
         }
         return fallback_rates, "Cached"
 
