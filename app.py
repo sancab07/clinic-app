@@ -77,14 +77,34 @@ st.markdown(
     f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    
+
+    /* Force light theme - override system preferences */
+    :root {{
+        color-scheme: light !important;
+    }}
+
     * {{
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         box-sizing: border-box;
     }}
 
+    /* Override Streamlit's dark theme completely */
     .stApp {{
         background: {PALETTE["bg_page"]} !important;
+        color: {PALETTE["text_primary"]} !important;
+    }}
+
+    /* Force all backgrounds to light */
+    [data-testid="stAppViewContainer"] {{
+        background: {PALETTE["bg_page"]} !important;
+    }}
+
+    [data-testid="stHeader"] {{
+        background: transparent !important;
+    }}
+
+    /* Force all text to dark on light background */
+    .stMarkdown, .stMarkdown p, .stMarkdown li, .stMarkdown span {{
         color: {PALETTE["text_primary"]} !important;
     }}
 
@@ -522,8 +542,8 @@ st.markdown(
 header_html = f"""
 <div class="ct-header">
     <div>
-        <h1 class="ct-main-title">Clinic P&L Financial Model</h1>
-        <p class="ct-subtitle">Colombiana de Trasplantes · Outpatient Follow-up Division · Strategic Financial Analysis</p>
+        <h1 class="ct-main-title">Financial Model & Strategic Analysis</h1>
+        <p class="ct-subtitle">Outpatient Transplant Follow-Up Clinic | Colombiana de Trasplantes</p>
     </div>
 </div>
 """
@@ -635,7 +655,7 @@ currency = st.sidebar.selectbox(
 # Show exchange rates info
 if rates_date != "Cached":
     rates_info = f"1 USD = {EXCHANGE_RATES['USD']['COP']:.2f} COP | 1 EUR = {EXCHANGE_RATES['EUR']['USD']:.4f} USD"
-    st.sidebar.caption(f"📊 Rates ({rates_date}): {rates_info}")
+    st.sidebar.caption(f"Exchange rates ({rates_date}): {rates_info}")
 
 # Dynamic currency label
 currency_label = f"k{currency}"
@@ -849,7 +869,7 @@ ke = st.sidebar.number_input(
     help="Cost of equity (Ke) - the required rate of return investors expect. Used as discount rate in NPV calculations."
 ) / 100.0
 
-# ✅ NUEVO: este reemplaza al porcentaje sobre la utilidad
+# Initial investment parameter
 initial_investment = st.sidebar.number_input(
     f"Initial investment ({currency_label})",
     min_value=0.0,
@@ -860,7 +880,7 @@ initial_investment = st.sidebar.number_input(
 )
 st.session_state.base_values['initial_investment'] = initial_investment
 
-# ✅ Se mantiene porque la DCF lo usa en la Parte 2
+# FCF factor for DCF valuation
 fcf_factor = st.sidebar.number_input(
     "FCF as % of net profit",
     min_value=5.0,
@@ -1770,7 +1790,7 @@ with tab_sens:
         )
 
     else:
-        st.warning("⚠️ Break-even analysis unavailable with current parameters. Check tariff and variable cost.")
+        st.warning("Break-even analysis unavailable with current parameters. Check tariff and variable cost.")
     
     # =====================================================
     # SECCIÓN 2: TORNADO ANALYSIS
@@ -2321,11 +2341,11 @@ with tab_sens:
         "Margin": format_percentage(base_margin_stress),
         "Δ EBITDA": "—",
         "Δ%": "—",
-        "Status": "✓ Profitable" if base_ebitda_stress > 0 else "✗ Unprofitable"
+        "Status": "Profitable" if base_ebitda_stress > 0 else "Unprofitable"
     }]
 
     for _, r in stress_df.iterrows():
-        status = "✓ Profitable" if r["ebitda"] > 0 else "✗ Unprofitable"
+        status = "Profitable" if r["ebitda"] > 0 else "Unprofitable"
         display_rows.append({
             "Scenario": r["name"],
             "EBITDA": format_currency(r["ebitda"]),
@@ -2589,7 +2609,7 @@ with tab_sens:
         
         for i, (label, impact, sc) in enumerate(impacts, 1):
             status_color = PALETTE["success"] if sc["ebitda"] > 0 else PALETTE["danger"]
-            status_icon = "✓" if sc["ebitda"] > 0 else "✗"
+            status_icon = "+" if sc["ebitda"] > 0 else "-"
             bar_width = (impact / impacts[0][1]) * 100
             
             rank_html = f"""
@@ -3109,7 +3129,7 @@ with tab_analysis:
         clinical_y, drugs_y, labs_y, admin_y, other_y, stress_costs
     )
 
-    # ✅ ROIC proxy sobre la inversión real
+    # ROIC proxy calculation
     roic_proxy = safe_divide(ebitda_y, initial_investment)
 
     # ===== CARD 1: STRATEGIC POSITIONING =====
@@ -4040,11 +4060,11 @@ st.sidebar.markdown(
 # FOOTER
 # =========================================================
 st.markdown("---")
-footer_html = """
+footer_html = f"""
 <div class="footer">
-    <b>Clinic P&L Financial Model</b> | Colombiana de Trasplantes<br>
-    Strategic Financial Analysis Dashboard | For Internal Use Only<br>
-    Model Version 2.0 | All figures in thousands USD unless otherwise noted
+    <b>Financial Model & Strategic Analysis</b> | Colombiana de Trasplantes<br>
+    Professional Financial Planning Dashboard | Confidential<br>
+    Model Version 2.1 | All figures in thousands {currency} | Exchange rates updated daily
 </div>
 """
 st.markdown(footer_html, unsafe_allow_html=True)
